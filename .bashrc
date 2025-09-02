@@ -153,4 +153,6 @@ alias gco='git checkout'
 alias gb='git branch'
 alias gdf='git diff'
 alias gst='git stash'
+alias pushdot='~/dotfiles/pushdot.sh'
+alias syncdot='~/dotfiles/pulldot.sh'
 
