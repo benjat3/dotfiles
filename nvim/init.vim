@@ -13,3 +13,69 @@ set expandtab
 "Resaltar
 set cursorline        " Resalta la línea donde está el cursor
 set hlsearch          " Resalta todas las coincidencias de la búsqueda
+
+"Otras cosas
+filetype plugin on " detecta el tipo de archivo y carga configs específicas
+
+call plug#begin('~/.vim/plugged')
+
+" Colores y sintaxis mejorada
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+
+" Autocompletado para Python
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+call plug#end()
+
+filetype plugin indent on
+"Ejecutar rapido python
+nnoremap <F5> :w<CR>:!python3 %<CR>
+"Colores
+colorscheme evening
+"chatgpt
+" ==========================
+" Configuración básica Neovim
+" ==========================
+set tabstop=4           " ancho de tabulación = 4
+set shiftwidth=4        " identación = 4
+set expandtab           " convierte tab en espacios
+set smartindent         " indentación automática
+
+
+" ==========================
+" Gestor de plugins: vim-plug
+" ==========================
+call plug#begin('~/.vim/plugged')
+
+" Mejor coloreado con Treesitter
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+
+" Autocompletado estilo VSCode
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+
+call plug#end()
+
+" ==========================
+" Configuración de plugins
+" ==========================
+
+
+" Treesitter: mejor resaltado de sintaxis
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  ensure_installed = { "python", "bash", "json", "yaml" },
+  highlight = { enable = true },
+}
+EOF
+
+" COC (autocompletado y LSP)
+" Usar <Tab> para moverte entre sugerencias
+inoremap <silent><expr> <TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
+
+" Atajo para formatear con Coc
+nmap <leader>f  :call CocAction('format')<CR>
+" Mapear Ctrl+space para salir de terminal
+tnoremap <C-space> <C-\><C-n>
+
