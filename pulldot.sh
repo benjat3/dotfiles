@@ -14,5 +14,7 @@ cp $DOTDIR/.bashrc ~/
 cp -r $DOTDIR/nvim ~/.config/
 cp $DOTDIR/.gitconfig ~/ || true
 
+source ~/.bashrc
+
 echo "✅ Configuración sincronizada con éxito"
 
