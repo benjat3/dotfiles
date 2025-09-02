@@ -1,0 +1,12 @@
+[user]
+	name = dtorres
+	email = benjat3@gmail.com
+[core]
+	editor = nvim
+[alias]
+	s = status
+	c = commit
+	p = push
+	l = log --oneline --graph --decorate
+[credential]
+	helper = store
