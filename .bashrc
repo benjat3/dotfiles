@@ -133,7 +133,7 @@ alias tree='tree -C'       # árbol de directorios con colores
 alias l='ls -CF'
 
 ## Prompt
-export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ "
+export PS1="\[\e[1;31m\]\u@\h\[\e[0m\]:\[\e[1;37m\]\w\[\e[0m\]\$ "
 
 ## Activar entorno de ingeniería
 alias ingenieria='source ~/.venvs/ingenieria/bin/activate'
