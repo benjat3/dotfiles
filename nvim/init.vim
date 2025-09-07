@@ -79,3 +79,9 @@ nmap <leader>f  :call CocAction('format')<CR>
 " Mapear Ctrl+space para salir de terminal
 tnoremap <C-space> <C-\><C-n>
 
+" Para autocompletar más fácil con Coc
+inoremap <silent><expr> <TAB>
+      \ coc#pum#visible() ? 
+      \ (coc#pum#has_next() ? coc#pum#next(1) : coc#pum#confirm()) :
+      \ "\<TAB>"
+

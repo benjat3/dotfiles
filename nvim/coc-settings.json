@@ -1,0 +1,7 @@
+{
+  "suggest.noselect": false,
+  "suggest.enablePreselect": true,
+  "suggest.minTriggerInputLength": 1,
+  "suggest.autoTrigger": "always"
+}
+
