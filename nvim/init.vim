@@ -80,8 +80,12 @@ nmap <leader>f  :call CocAction('format')<CR>
 tnoremap <C-space> <C-\><C-n>
 
 " Para autocompletar más fácil con Coc
+" TAB: si el popup está visible y solo hay 1 opción -> confirmar,
+" si hay varias -> mover al siguiente, si no -> insertar tab.
 inoremap <silent><expr> <TAB>
-      \ coc#pum#visible() ? 
-      \ (coc#pum#has_next() ? coc#pum#next(1) : coc#pum#confirm()) :
+      \ coc#pum#visible() ? (get(coc#pum#info(), 'size', 0) == 1 ? coc#pum#select_confirm() : coc#pum#next(1)) :
       \ "\<TAB>"
+
+inoremap <silent><expr> <S-TAB>
+      \ coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
 
