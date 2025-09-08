@@ -17,7 +17,13 @@ set hlsearch          " Resalta todas las coincidencias de la búsqueda
 "Otras cosas
 filetype plugin on " detecta el tipo de archivo y carga configs específicas
 
+" ==========================
+" Gestor de plugins: vim-plug
+" ==========================
 call plug#begin('~/.vim/plugged')
+
+" Tema Cyberdream
+Plug 'scottmckendry/cyberdream.nvim'
 
 " Colores y sintaxis mejorada
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
@@ -31,7 +37,7 @@ filetype plugin indent on
 "Ejecutar rapido python
 nnoremap <F5> :w<CR>:!python3 %<CR>
 "Colores
-colorscheme evening
+colorscheme cyberdream 
 "chatgpt
 " ==========================
 " Configuración básica Neovim
@@ -40,21 +46,6 @@ set tabstop=4           " ancho de tabulación = 4
 set shiftwidth=4        " identación = 4
 set expandtab           " convierte tab en espacios
 set smartindent         " indentación automática
-
-
-" ==========================
-" Gestor de plugins: vim-plug
-" ==========================
-call plug#begin('~/.vim/plugged')
-
-" Mejor coloreado con Treesitter
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-
-" Autocompletado estilo VSCode
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
-
-call plug#end()
 
 " ==========================
 " Configuración de plugins
