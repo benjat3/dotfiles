@@ -11,7 +11,7 @@ git pull
 
 echo "=== Copiando configs al sistema ==="
 cp $DOTDIR/.bashrc ~/
-cp -r $DOTDIR/nvim ~/.config/
+rsync -av --exclude='.git' "$DOTDIR/nvim/" ~/.config/nvim/
 cp $DOTDIR/.gitconfig ~/ || true
 
 source ~/.bashrc

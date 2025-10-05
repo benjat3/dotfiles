@@ -7,7 +7,7 @@ DOTDIR=~/dotfiles
 
 echo "=== Copiando configs actuales al repo ==="
 cp ~/.bashrc $DOTDIR/
-cp -r ~/.config/nvim $DOTDIR/
+rsync -av --exclude='.git' ~/.config/nvim/ "$DOTDIR/nvim/"
 cp ~/.gitconfig $DOTDIR/ || true
 
 cd $DOTDIR
