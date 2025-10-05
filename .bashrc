@@ -76,16 +76,16 @@ esac
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
+    alias dir='dir --color=auto'
+    alias vdir='vdir --color=auto'
 
-    #alias grep='grep --color=auto'
-    #alias fgrep='fgrep --color=auto'
-    #alias egrep='egrep --color=auto'
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
 fi
 
 # colored GCC warnings and errors
-#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 # some more ls aliases
 
@@ -110,7 +110,6 @@ if ! shopt -oq posix; then
 fi
 
 #Config propia
-
 ## Bash
 ### Utilidades
 alias h='htop'             # monitor de procesos
@@ -133,7 +132,8 @@ alias tree='tree -C'       # árbol de directorios con colores
 alias l='ls -CF'
 
 ## Prompt
-export PS1="\[\e[1;31m\]\u@\e[4;35m\]\h\[\e[0m\]\[\e[0m\]:\w$ "
+export PS1="\[\e[1;31m\]\u@\[\e[4;35m\]\h\[\e[0m\]:\w$ "
+
 
 ## Activar entorno de ingeniería
 alias ingenieria='source ~/.venvs/ingenieria/bin/activate'
@@ -155,4 +155,13 @@ alias gdf='git diff'
 alias gst='git stash'
 alias pushdot='~/dotfiles/pushdot.sh'
 alias pulldot='~/dotfiles/pulldot.sh'
+
+# Configuración para nnn (explorador de archivos)
+export NNN_OPTS="de"  # d: modo detalle por defecto, e: abrir texto en editor (Neovim)
+export NNN_PLUG='p:~/.config/nnn/plugins/preview-tui;v:imgview'  # Plugins: p para preview, v para vista de imágenes
+export NNN_FIFO=/tmp/nnn.fifo  # Para previews en FIF0O
+alias n='nnn -de'  # Alias rápido para abrir en modo detalle
+
+# sbin path
+export PATH=$PATH:/sbin:/usr/sbin
 

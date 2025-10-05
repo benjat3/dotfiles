@@ -1,82 +1,179 @@
-"Numeración de línea
-set number
-set relativenumber
-"Mejorar busqueda
-set ignorecase
-set smartcase
-"Sintaxis
-syntax on
-"Indentacion
-set tabstop=4
-set shiftwidth=4
-set expandtab
-"Resaltar
-set cursorline        " Resalta la línea donde está el cursor
-set hlsearch          " Resalta todas las coincidencias de la búsqueda
-
-"Otras cosas
-filetype plugin on " detecta el tipo de archivo y carga configs específicas
+" Configuración básica de Neovim
+set number              " Mostrar números de línea
+set relativenumber      " Números relativos
+set ignorecase          " Ignorar mayúsculas/minúsculas en búsquedas
+set smartcase           " Sensible a mayúsculas si la búsqueda las incluye
+syntax on               " Habilitar sintaxis
+set tabstop=4           " Ancho de tabulación = 4
+set shiftwidth=4        " Indentación = 4
+set expandtab           " Convertir tabs en espacios
+set cursorline          " Resaltar la línea del cursor
+set hlsearch            " Resaltar coincidencias de búsqueda
+filetype plugin indent on " Detectar tipo de archivo y cargar configs específicas
+set smartindent         " Indentación automática
 
 " ==========================
 " Gestor de plugins: vim-plug
 " ==========================
-call plug#begin('~/.vim/plugged')
+call plug#begin('~/.local/share/nvim/plugged')
 
 " Tema Cyberdream
 Plug 'scottmckendry/cyberdream.nvim'
 
-" Colores y sintaxis mejorada
+" Resaltado de sintaxis moderno
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
-" Autocompletado para Python
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" Gestor de LSP servers (Mason)
+Plug 'williamboman/mason.nvim'
+
+" Configuración de LSP
+Plug 'neovim/nvim-lspconfig'
+
+" Autocompletado con nvim-cmp
+Plug 'hrsh7th/nvim-cmp'
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+
+" Snippets con LuaSnip
+Plug 'L3MON4D3/LuaSnip'
+Plug 'saadparwaiz1/cmp_luasnip'
+
+" Debugging con DAP
+Plug 'mfussenegger/nvim-dap'
+Plug 'mfussenegger/nvim-dap-python'
+
+" Usar nnn
+Plug 'luukvbaal/nnn.nvim'
 
 call plug#end()
 
-filetype plugin indent on
-"Ejecutar rapido python
-nnoremap <F5> :w<CR>:!python3 %<CR>
-"Colores
-colorscheme cyberdream 
-"chatgpt
 " ==========================
-" Configuración básica Neovim
-" ==========================
-set tabstop=4           " ancho de tabulación = 4
-set shiftwidth=4        " identación = 4
-set expandtab           " convierte tab en espacios
-set smartindent         " indentación automática
-
-" ==========================
-" Configuración de plugins
+" Configuración de plugins (en Lua)
 " ==========================
 
-
-" Treesitter: mejor resaltado de sintaxis
-lua <<EOF
+" Configuración de Treesitter
+lua << EOF
 require'nvim-treesitter.configs'.setup {
   ensure_installed = { "python", "bash", "json", "yaml" },
   highlight = { enable = true },
+  indent = { enable = true },
 }
 EOF
 
-" COC (autocompletado y LSP)
-" Usar <Tab> para moverte entre sugerencias
-inoremap <silent><expr> <TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
+" Configuración de Mason (gestor de LSP servers)
+lua << EOF
+require("mason").setup()
+EOF
 
-" Atajo para formatear con Coc
-nmap <leader>f  :call CocAction('format')<CR>
-" Mapear Ctrl+space para salir de terminal
-tnoremap <C-space> <C-\><C-n>
+" Configuración de LSP y servidores (Pyright para Python, bashls para Bash)
+lua << EOF
+-- Función on_attach común
+local on_attach = function(client, bufnr)
+  local opts = { noremap=true, silent=true, buffer=bufnr }
+  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)      -- Ir a definición
+  vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)            -- Mostrar hover/info
+  vim.keymap.set('n', '<leader>f', vim.lsp.buf.format, opts)   -- Formatear (usa ruff si configurado)
+  vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)  -- Renombrar
+  vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)  -- Acciones de código
+end
 
-" Para autocompletar más fácil con Coc
-" TAB: si el popup está visible y solo hay 1 opción -> confirmar,
-" si hay varias -> mover al siguiente, si no -> insertar tab.
-inoremap <silent><expr> <TAB>
-      \ coc#pum#visible() ? (get(coc#pum#info(), 'size', 0) == 1 ? coc#pum#select_confirm() : coc#pum#next(1)) :
-      \ "\<TAB>"
+-- Pyright para Python (integra ruff para linting/formateo)
+vim.lsp.config('pyright', {
+  settings = {
+    python = {
+      analysis = {
+        typeCheckingMode = "basic",  -- Ajusta según tus necesidades: off, basic, strict
+      },
+    },
+  },
+  on_attach = on_attach,
+})
+vim.lsp.enable('pyright')
 
-inoremap <silent><expr> <S-TAB>
-      \ coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+-- bash-language-server para Bash (integra shellcheck y shfmt)
+vim.lsp.config('bashls', {
+  on_attach = on_attach,
+})
+vim.lsp.enable('bashls')
+EOF
 
+" Configuración de nvim-cmp (autocompletado)
+lua << EOF
+local cmp = require'cmp'
+cmp.setup {
+  snippet = {
+    expand = function(args)
+      require('luasnip').lsp_expand(args.body)
+    end,
+  },
+  mapping = cmp.mapping.preset.insert({
+    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    ['<C-Space>'] = cmp.mapping.complete(),
+    ['<C-e>'] = cmp.mapping.abort(),
+    ['<CR>'] = cmp.mapping.confirm({ select = true }),  -- Aceptar con Enter
+    ['<Tab>'] = cmp.mapping(function(fallback)
+      if cmp.visible() then
+        cmp.select_next_item()
+      else
+        fallback()
+      end
+    end, { 'i', 's' }),
+    ['<S-Tab>'] = cmp.mapping(function(fallback)
+      if cmp.visible() then
+        cmp.select_prev_item()
+      else
+        fallback()
+      end
+    end, { 'i', 's' }),
+  }),
+  sources = cmp.config.sources({
+    { name = 'nvim_lsp' },
+    { name = 'luasnip' },
+  }, {
+    { name = 'buffer' },
+    { name = 'path' },
+  })
+}
+EOF
+
+" Configuración de DAP para debugging Python
+lua << EOF
+require('dap-python').setup('python')  -- Asume que debugpy está instalado
+-- Mapeos básicos para debugging
+vim.keymap.set('n', '<F6>', require'dap'.continue)       -- Continuar/Empezar debug
+vim.keymap.set('n', '<F7>', require'dap'.step_over)      -- Step over
+vim.keymap.set('n', '<F8>', require'dap'.step_into)      -- Step into
+vim.keymap.set('n', '<leader>b', require'dap'.toggle_breakpoint)  -- Toggle breakpoint
+EOF
+
+" ==========================
+" Otras configuraciones
+" ==========================
+" Tema
+colorscheme cyberdream
+
+" Ejecutar Python rápidamente
+nnoremap <F5> :w<CR>:!python3 %<CR>
+
+" Salir de modo terminal con Ctrl+Space
+tnoremap <C-Space> <C-\><C-n>
+
+" lua para nnn
+lua << EOF
+require("nnn").setup({
+  explorer = {
+    cmd = "nnn -de",  -- Comando para abrir nnn
+    width = 30,       -- Ancho del split
+    side = "botright", -- Posición (o vsplit para vertical)
+  },
+  picker = {
+    cmd = "nnn -dep -",  -- Modo picker
+    style = { border = "single" },
+  },
+  mappings = {
+    { "<C-t>", require("nnn").builtin.open_in_tab },  -- Abrir en tab
+  },
+})
+EOF
