@@ -190,6 +190,13 @@ EOF
 " Otras configuraciones
 " ==========================
 " Tema
+lua << EOF
+require("cyberdream").setup({
+  transparent = true,      -- Fondo transparente (opcional)
+  italic_comments = true,  -- Comentarios en itálica (opcional)
+  -- Agrega más opciones si quieres, ver docs en GitHub
+})
+EOF
 colorscheme cyberdream
 
 " Ejecutar Python rápidamente
@@ -215,3 +222,5 @@ require("nnn").setup({
   },
 })
 EOF
+
+
