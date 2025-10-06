@@ -146,13 +146,45 @@ EOF
 
 " Configuración de DAP para debugging Python
 lua << EOF
-require('dap-python').setup('python')  -- Asume que debugpy está instalado
+require('dap-python').setup('~/.venvs/dev/bin/python3')
 -- Mapeos básicos para debugging
 vim.keymap.set('n', '<F6>', require'dap'.continue)       -- Continuar/Empezar debug
 vim.keymap.set('n', '<F7>', require'dap'.step_over)      -- Step over
 vim.keymap.set('n', '<F8>', require'dap'.step_into)      -- Step into
 vim.keymap.set('n', '<leader>b', require'dap'.toggle_breakpoint)  -- Toggle breakpoint
 EOF
+
+" ruff, shellcheck y shfmt
+lua << EOF
+local null_ls = require("null-ls")
+local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
+null_ls.setup({
+  sources = {
+    -- Python: ruff para linting y formateo
+    null_ls.builtins.diagnostics.ruff,
+    null_ls.builtins.formatting.ruff,
+    -- Bash: shellcheck para linting, shfmt para formateo
+    null_ls.builtins.diagnostics.shellcheck,
+    null_ls.builtins.formatting.shfmt.with({
+      extra_args = { "-i", "4" },  -- Indentación de 4 espacios, como tu config
+    }),
+  },
+  -- Formateo automático al guardar
+  on_attach = function(client, bufnr)
+    if client.supports_method("textDocument/formatting") then
+      vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        group = augroup,
+        buffer = bufnr,
+        callback = function()
+          vim.lsp.buf.format({ bufnr = bufnr })
+        end,
+      })
+    end
+  end,
+})
+EOF
+
 
 " ==========================
 " Otras configuraciones
