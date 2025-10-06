@@ -25,7 +25,7 @@ Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 " Gestor de LSP servers (Mason)
 Plug 'williamboman/mason.nvim'
-Plug 'williamboman/mason-lspconfig.nvim'  " Para auto-configurar LSPs instalados con Mason
+Plug 'mason-org/mason-lspconfig.nvim'  " Cambia de williamboman a mason-org
 
 " Configuración de LSP
 Plug 'neovim/nvim-lspconfig'
@@ -48,13 +48,20 @@ Plug 'mfussenegger/nvim-dap-python'
 Plug 'luukvbaal/nnn.nvim'
 
 " otros
-Plug 'jose-elias-alvarez/null-ls.nvim'    " Para integrar ruff, shellcheck, shfmt como linters/formatters
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvimtools/none-ls.nvim'  " Reemplaza null-ls por none-ls
 
 call plug#end()
 
 " ==========================
 " Configuración de plugins (en Lua)
 " ==========================
+
+" Shellcheck y shfmt
+lua << EOF
+local mason_bin = vim.fn.stdpath('data') .. '/mason/bin'
+vim.env.PATH = mason_bin .. ':' .. vim.env.PATH
+EOF
 
 " Configuración de Treesitter
 lua << EOF
@@ -69,27 +76,28 @@ EOF
 lua << EOF
 require("mason").setup()
 require("mason-lspconfig").setup({
-  ensure_installed = { "pyright", "bashls" },  -- Asegura que se instalen si faltan
+  ensure_installed = { "pyright", "bashls", "ruff"} 
 })
 EOF
 " Configuración de LSP y servidores (Pyright para Python, bashls para Bash)
+
 lua << EOF
 -- Función on_attach común
 local on_attach = function(client, bufnr)
   local opts = { noremap=true, silent=true, buffer=bufnr }
   vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)      -- Ir a definición
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)            -- Mostrar hover/info
-  vim.keymap.set('n', '<leader>f', vim.lsp.buf.format, opts)   -- Formatear (usa ruff si configurado)
+  vim.keymap.set('n', '<leader>f', vim.lsp.buf.format, opts)   -- Formatear
   vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)  -- Renombrar
   vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)  -- Acciones de código
 end
 
--- Pyright para Python (integra ruff para linting/formateo)
+-- Configura pyright
 vim.lsp.config('pyright', {
   settings = {
     python = {
       analysis = {
-        typeCheckingMode = "basic",  -- Ajusta según tus necesidades: off, basic, strict
+        typeCheckingMode = "basic",  -- Mantén tu ajuste
       },
     },
   },
@@ -97,11 +105,25 @@ vim.lsp.config('pyright', {
 })
 vim.lsp.enable('pyright')
 
--- bash-language-server para Bash (integra shellcheck y shfmt)
+-- Configura bashls
 vim.lsp.config('bashls', {
   on_attach = on_attach,
 })
 vim.lsp.enable('bashls')
+EOF
+
+lua << EOF
+-- Configura ruff como LSP para diagnostics y formatting en Python
+vim.lsp.config('ruff', {
+  on_attach = on_attach,  -- Reusa tu función on_attach
+  init_options = {
+    settings = {
+      -- Opciones de ruff (ajusta si necesitas, e.g., ignora reglas específicas)
+      args = {},  -- Ejemplo: {"--ignore=E501"} para ignorar líneas largas
+    },
+  },
+})
+vim.lsp.enable('ruff')
 EOF
 
 " Configuración de nvim-cmp (autocompletado)
@@ -146,7 +168,7 @@ EOF
 
 " Configuración de DAP para debugging Python
 lua << EOF
-require('dap-python').setup('~/.venvs/dev/bin/python3')
+require('dap-python').setup('python')  -- Asume que debugpy está instalado; ajusta la ruta si usas venv
 -- Mapeos básicos para debugging
 vim.keymap.set('n', '<F6>', require'dap'.continue)       -- Continuar/Empezar debug
 vim.keymap.set('n', '<F7>', require'dap'.step_over)      -- Step over
@@ -154,7 +176,7 @@ vim.keymap.set('n', '<F8>', require'dap'.step_into)      -- Step into
 vim.keymap.set('n', '<leader>b', require'dap'.toggle_breakpoint)  -- Toggle breakpoint
 EOF
 
-" ruff, shellcheck y shfmt
+" config de null-ls
 lua << EOF
 local null_ls = require("null-ls")
 local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
@@ -166,7 +188,7 @@ null_ls.setup({
     -- Bash: shellcheck para linting, shfmt para formateo
     null_ls.builtins.diagnostics.shellcheck,
     null_ls.builtins.formatting.shfmt.with({
-      extra_args = { "-i", "4" },  -- Indentación de 4 espacios, como tu config
+      extra_args = { "-i", "4" },  -- Indentación de 4 espacios
     }),
   },
   -- Formateo automático al guardar
@@ -184,7 +206,6 @@ null_ls.setup({
   end,
 })
 EOF
-
 
 " ==========================
 " Otras configuraciones
@@ -222,5 +243,3 @@ require("nnn").setup({
   },
 })
 EOF
-
-
