@@ -25,6 +25,7 @@ Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 " Gestor de LSP servers (Mason)
 Plug 'williamboman/mason.nvim'
+Plug 'williamboman/mason-lspconfig.nvim'  " Para auto-configurar LSPs instalados con Mason
 
 " Configuración de LSP
 Plug 'neovim/nvim-lspconfig'
@@ -46,6 +47,9 @@ Plug 'mfussenegger/nvim-dap-python'
 " Usar nnn
 Plug 'luukvbaal/nnn.nvim'
 
+" otros
+Plug 'jose-elias-alvarez/null-ls.nvim'    " Para integrar ruff, shellcheck, shfmt como linters/formatters
+
 call plug#end()
 
 " ==========================
@@ -64,8 +68,10 @@ EOF
 " Configuración de Mason (gestor de LSP servers)
 lua << EOF
 require("mason").setup()
+require("mason-lspconfig").setup({
+  ensure_installed = { "pyright", "bashls" },  -- Asegura que se instalen si faltan
+})
 EOF
-
 " Configuración de LSP y servidores (Pyright para Python, bashls para Bash)
 lua << EOF
 -- Función on_attach común
