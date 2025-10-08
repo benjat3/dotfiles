@@ -114,7 +114,7 @@ EOF
 
 lua << EOF
 -- Configura ruff como LSP para diagnostics y formatting en Python
-vim.lsp.config('ruff', {
+vim.lsp.config('ruff_lsp', {
   on_attach = on_attach,  -- Reusa tu función on_attach
   init_options = {
     settings = {
@@ -123,7 +123,7 @@ vim.lsp.config('ruff', {
     },
   },
 })
-vim.lsp.enable('ruff')
+vim.lsp.enable('ruff_lsp')
 EOF
 
 " Configuración de nvim-cmp (autocompletado)
@@ -182,14 +182,6 @@ local null_ls = require("null-ls")
 local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
 null_ls.setup({
   sources = {
-    -- Python: ruff para linting y formateo
-    null_ls.builtins.diagnostics.ruff,
-    null_ls.builtins.formatting.ruff,
-    -- Bash: shellcheck para linting, shfmt para formateo
-    null_ls.builtins.diagnostics.shellcheck,
-    null_ls.builtins.formatting.shfmt.with({
-      extra_args = { "-i", "4" },  -- Indentación de 4 espacios
-    }),
   },
   -- Formateo automático al guardar
   on_attach = function(client, bufnr)
